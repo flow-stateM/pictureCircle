@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .wrap{
+        position: absolute;
+        left: 50%;
+        top:55%;
+        /* transform:translateX(-50%) translateY(-50%) rotateX(10deg) rotateY(0deg); */
+        width:500px;
+        height:500px;
+        /* background:rgba(0,0,0,0.4); */
+        transform-style: preserve-3d;
+        /* perspective: 1500px; */
+        /* perspective-origin: 0px 400px; */
+    }
+    .img{
+        height: 200px;
+        width:200px;
+        position: absolute;
+        background-image:url("./2.jpg"); 
+        background-size: cover;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        border-radius: 10px;
+    }
+</style>
+<body>
+    <div class="wrap">
+        <div class="img"></div>
+        <div class="img"></div>
+        <div class="img"></div>
+        <div class="img"></div>
+        <div class="img"></div>
+        <div class="img"></div>
+    </div>
+</body>
+<script src="../../tool.js"></script>
+<script>
+    //生成几张图片 计算生成角度  （先做固定6张的）
+    var imgData =[
+        './1.jpg',
+        './2.jpg',
+        './3.jpg',
+        './4.jpg',
+        './5.jpg',
+        './6.jpg'
+    ];
+    var wrap = document.querySelector('.wrap');
+    var imgs = document.querySelectorAll('.img');
+    css(wrap,{translateX:'-50%',translateY:'-50%',rotateX:10,rotateY:0})
+    var imgsort = Array.from(imgs);
+    imgs.forEach(function(item,index){
+        item.style.backgroundImage = `url(${imgData[index]})`;
+        css(item,{translateX:'-50%',translateY:'-100%',rotateY:index*60,translateZ:300,scale:1});
+        item.onclick =function(){
+            if(wrap.animation2) return;
+            wrap.animation2 = 1;
+        wrap.onmouseout =function(){};
+    //鼠标点击某张图片的时候  让动画停止 执行一个动画 获取到这张图片的rotateY值 然后让wrap转360-这个度数
+            var now = css(item,'rotateY');
+            var wrapNow=  css(wrap,'rotateY')
+            //不分左右 直接转
+             wrap.stop();
+
+                animation({
+                    el:wrap,
+                    attrs:{
+                        rotateY:360-now
+                    },
+                    duration:1000,
+                    fx:'linear',
+                    cb:function(){ 
+                        animation({
+                            el:item,
+                            attrs:{
+                                scale:3
+                            },
+                            duration:1000
+                        })
+                        wrap.onmouseout  =function(){                                
+                        wrap.animation2 = 0;
+                        startcricle(360-now);
+                        animation({
+                            el:item,
+                            attrs:{
+                                scale:1
+                            },
+                            duration:1000
+                        })
+                        }
+                    }
+                 })
+
+
+            //容器每转了60度就让数组变样（最后一个变到第一个） 前三个向左回来 后三个向右回 
+            // var times = Math.floor(wrapNow/60);
+            // for(var i =0;i<times;i++){
+            //     imgsort.unshift(imgsort.pop())
+            // }
+            // if(imgsort.indexOf(item)<3){
+            //     wrap.stop();
+            //     animation({
+            //         el:wrap,
+            //         attrs:{
+            //             rotateY:wrapNow-(imgsort.indexOf(item)*60)-wrapNow%60
+            //             // rotateY:wrapNow-now-wrapNow%60
+            //         },
+            //         duration:(imgsort.indexOf(item)*60+wrapNow%60)*5,
+            //         fx:'linear',
+            //         cb:function(){
+            //               //还要在转完之后把数组也变了
+            //               while(imgsort[0]!==item){
+            //                 imgsort.unshift(imgsort.pop())
+            //             };
+            //             wrap.onmouseout  =function(){     
+            //                 wrap.animation2 = 0;
+            //             startcricle(wrapNow-(imgsort.indexOf(item)*60)-wrapNow%60);
+            //             }
+            //      }
+            //     })
+            // }else{
+            //     wrap.stop();
+            //     animation({
+            //         el:wrap,
+            //         attrs:{
+            //             rotateY:360-now
+            //         },
+            //         duration:(360-now)*5,
+            //         fx:'linear',
+            //         cb:function(){
+            //               //还要在转完之后把数组也变了   有bug  解决办法  直接让数组变成item在第一个的样子
+            //             // for(var i =index;i<6;i++){
+            //             //     imgsort.unshift(imgsort.pop())
+            //             // }
+            //             while(imgsort[0]!==item){
+            //                 imgsort.unshift(imgsort.pop())
+            //             }
+            //             wrap.onmouseout  =function(){     
+            //                 wrap.animation2 = 0;
+            //             startcricle(360-now);}
+            //         }
+            //      })
+            // };
+        }
+    })
+    // css(imgs[0],{rotateY:0,translateZ:300})
+    function startcricle(a){
+        animation({
+            el:wrap,
+            attrs:{
+                rotateY:a+360
+            },
+            duration:15000,
+            fx:'linear',
+            cb:function(){
+                css(this,{rotateY:a});
+                startcricle(a);
+            }
+        })
+    }
+    startcricle(0);
+
+</script>
+</html>
